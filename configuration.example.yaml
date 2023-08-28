@@ -1,0 +1,5 @@
+# rename this file as configuration.yaml to use it
+lora_names:
+# the LoRAs from which LoadRandomLora will select a LoRA to load. 
+- loraname
+- another_loraname
