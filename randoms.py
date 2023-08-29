@@ -21,33 +21,45 @@ class RandomBase(Base_randoms):
     CATEGORY = "randoms"
     def IS_CHANGED(self, minimum, maximum, seed):
         return random.random()
-    def func(self, minimum, maximum, seed):
+    def func(self, minimum, maximum, seed, **kwargs):
         with SeedContext(seed):
             rand = self.gen(minimum, maximum)
+            if 'decimal_places' in kwargs:
+                rand = round(rand, kwargs['decimal_places'])
         return (rand,)
-    gen = lambda a,b:0
-
 
 def SEED_INPUT():
-    return ("INT",{"default": random.randint(1,999999999), "min": 0, "max": 0xffffffffffffffff})
+    with SeedContext(None):
+        return ("INT",{"default": random.randint(1,999999999), "min": 0, "max": 0xffffffffffffffff})
 
-class RandomFloat(RandomBase):
+class RandomFloat(Base_randoms):
+    RETURN_NAMES = ("random_float",)
+    CATEGORY = "randoms"
     REQUIRED = { 
                 "minimum": ("FLOAT", {"default": 0.0}), 
                 "maximum": ("FLOAT", {"default": 1.0}), 
                 "seed": SEED_INPUT(),
-            }
+    }
+    OPTIONAL = { "decimal_places": ("INT", {"default": 10, "min":1, "max":20}), }
     RETURN_TYPES = ("FLOAT",)
-    gen = random.uniform
+    def func(self, minimum, maximum, seed, decimal_places=10):
+        with SeedContext(seed):
+            rand = round(random.uniform(minimum, maximum), decimal_places)
+        return (rand,)
 
-class RandomInt(RandomBase):
+class RandomInt(Base_randoms):
+    RETURN_NAMES = ("random_int",)
+    CATEGORY = "randoms"
     REQUIRED = { 
                 "minimum": ("INT", {"default": 0}), 
                 "maximum": ("INT", {"default": 99999999}), 
                 "seed": SEED_INPUT(),
             }
     RETURN_TYPES = ("INT",)
-    gen = random.randint
+    def func(self, minimum, maximum, seed):
+        with SeedContext(seed):
+            rand = random.randint(minimum, maximum)
+        return (rand,)
 
 class LoadRandomLora(Base_randoms, LoraLoader):
     CATEGORY = "randoms"
@@ -61,6 +73,9 @@ class LoadRandomLora(Base_randoms, LoraLoader):
     
     RETURN_TYPES = ("MODEL", "CLIP", "STRING",)
     RETURN_NAMES = ("model", "clip", "lora_name",)
+
+    def __init__(self):
+        LoraLoader.__init__(self)
 
     def func(self, model, clip, strength_model, strength_clip, seed):
         loras = get_config_randoms('lora_names', exception_if_missing_or_empty=True)
