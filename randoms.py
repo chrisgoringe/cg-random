@@ -1,9 +1,10 @@
 import random
-from common import *
+from .common import Base_randoms, get_config_randoms
 from nodes import LoraLoader, CheckpointLoaderSimple
 from PIL import Image, ImageOps
 import numpy as np
 import torch
+import os
   
 class SeedContext():
     """
