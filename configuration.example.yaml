@@ -1,5 +1,20 @@
 # rename this file as configuration.yaml to use it
+
+# the LoRAs from which Load Random Lora will select. 
+# Must be in the appropriate directory for ComfyUI. Assumed to be .safetensors if no extension given. 
 lora_names:
-# the LoRAs from which LoadRandomLora will select a LoRA to load. 
 - loraname
 - another_loraname
+
+# the checkpoints from which Load Random Checkpoint will select. 
+# Must be in the appropriate directory for ComfyUI. Assumed to be .safetensors if no extension given. 
+checkpoint_names:
+- a_checkpoint
+- another_checkpoint
+
+# extensions to be considered as images for Load Random Image (with the `.`)
+image_extensions:
+- .png
+- .jpg
+- .jpeg
+- .bmp
