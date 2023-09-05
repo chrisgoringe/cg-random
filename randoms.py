@@ -105,10 +105,11 @@ class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
 class LoadRandomImage(RandomBase):
     def __init__(self):
         self.systematic_index = -1
-    REQUIRED = { "folder": ("STRING", {} ), "seed": SEED_INPUT() }
+    REQUIRED = { "folder": ("STRING", {} ), 
+                "mode": ( ["random", "iterative"], {}) }
+    OPTIONAL = { "seed": ("INT", {"default":0}) }
     RETURN_TYPES = ("IMAGE","STRING",)
-    RETURN_NAMES = ("image","filename",)
-    OPTIONAL = {"filename": ("STRING", {"default":""})}
+    RETURN_NAMES = ("image","filepath",)
 
     def get_filenames(self, folder):
         image_extensions = get_config_randoms('image_extensions', exception_if_missing_or_empty=True)
@@ -120,13 +121,13 @@ class LoadRandomImage(RandomBase):
             raise Exception(f"No files matching {image_extensions} in {folder}")
         return files
 
-    def func(self, folder, seed, filename=""):
-        if filename=="":
-            filename, self.systematic_index = from_list(seed, self.get_filenames(folder), self.systematic_index)
+    def func(self, folder, mode, seed=0):
+        seed = seed if mode=="random" else 0
+        filename, self.systematic_index = from_list(seed, self.get_filenames(folder), self.systematic_index)
         filepath = os.path.join(folder, filename)
         i = Image.open(filepath)
         i = ImageOps.exif_transpose(i)
         image = i.convert("RGB")
         image = np.array(image).astype(np.float32) / 255.0
         image = torch.from_numpy(image)[None,]
-        return (image, filename, )
+        return (image, filepath, )
