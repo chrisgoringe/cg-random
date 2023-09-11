@@ -1,5 +1,6 @@
 import random
-from .common import Base_randoms, get_config_randoms
+from .common import get_config_randoms
+from custom_nodes.cg_custom_core.base import BaseNode
 from nodes import LoraLoader, CheckpointLoaderSimple
 from PIL import Image, ImageOps
 import numpy as np
@@ -20,7 +21,7 @@ class SeedContext():
     def __exit__(self, exc_type, exc_val, exc_tb):
         random.setstate(self.state)
 
-class RandomBase(Base_randoms):
+class RandomBase(BaseNode):
     CATEGORY = "randoms"
     def IS_CHANGED(self, **kwargs):
         return random.random()
@@ -29,7 +30,7 @@ def SEED_INPUT():
     with SeedContext(None):
         return ("INT",{"default": random.randint(1,999999999), "min": 0, "max": 0xffffffffffffffff})
 
-class RandomFloat(RandomBase):
+class RandomFloat(BaseNode):
     RETURN_NAMES = ("random_float",)
     REQUIRED = { 
                 "minimum": ("FLOAT", {"default": 0.0}), 
@@ -43,7 +44,7 @@ class RandomFloat(RandomBase):
             rand = round(random.uniform(minimum, maximum), decimal_places)
         return (rand,)
 
-class RandomInt(RandomBase):
+class RandomInt(BaseNode):
     RETURN_NAMES = ("random_int",)
     REQUIRED = { 
                 "minimum": ("INT", {"default": 0}), 
@@ -64,7 +65,7 @@ def from_list(seed, list, index):
         index = (index+1)%len(list)
         return (list[index], index)
 
-class LoadRandomLora(RandomBase, LoraLoader):
+class LoadRandomLora(BaseNode, LoraLoader):
     @classmethod
     def INPUT_TYPES(s):
         i = LoraLoader.INPUT_TYPES()
@@ -87,7 +88,7 @@ class LoadRandomLora(RandomBase, LoraLoader):
         lora_name = lora_name if '.' in lora_name else lora_name + ".safetensors" 
         return self.load_lora(model, clip, lora_name, strength_model, strength_clip) + (lora_name,)
 
-class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
+class LoadRandomCheckpoint(BaseNode, CheckpointLoaderSimple):
     systematic_index = -1
     @classmethod
     def INPUT_TYPES(s):
@@ -102,7 +103,7 @@ class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
         ckpt_name = ckpt_name if '.' in ckpt_name else ckpt_name + '.safetensors'
         return self.load_checkpoint(ckpt_name) + (ckpt_name,)
 
-class LoadRandomImage(RandomBase):
+class LoadRandomImage(BaseNode):
     def __init__(self):
         self.systematic_index = -1
     REQUIRED = { "folder": ("STRING", {} ), 
