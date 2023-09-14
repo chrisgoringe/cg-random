@@ -17,7 +17,7 @@ def SEED_INPUT():
     with SeedContext(None):
         return ("INT",{"default": random.randint(1,999999999), "min": 0, "max": 0xffffffffffffffff})
 
-class RandomFloat(BaseNode):
+class RandomFloat(RandomBase):
     RETURN_NAMES = ("random_float",)
     REQUIRED = { 
                 "minimum": ("FLOAT", {"default": 0.0}), 
@@ -31,7 +31,7 @@ class RandomFloat(BaseNode):
             rand = round(random.uniform(minimum, maximum), decimal_places)
         return (rand,)
 
-class RandomInt(BaseNode):
+class RandomInt(RandomBase):
     RETURN_NAMES = ("random_int",)
     REQUIRED = { 
                 "minimum": ("INT", {"default": 0}), 
@@ -52,7 +52,7 @@ def from_list(seed, list, index):
         index = (index+1)%len(list)
         return (list[index], index)
 
-class LoadRandomLora(BaseNode, LoraLoader):
+class LoadRandomLora(RandomBase, LoraLoader):
     @classmethod
     def INPUT_TYPES(s):
         i = LoraLoader.INPUT_TYPES()
@@ -75,7 +75,7 @@ class LoadRandomLora(BaseNode, LoraLoader):
         lora_name = lora_name if '.' in lora_name else lora_name + ".safetensors" 
         return self.load_lora(model, clip, lora_name, strength_model, strength_clip) + (lora_name,)
 
-class LoadRandomCheckpoint(BaseNode, CheckpointLoaderSimple):
+class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
     systematic_index = -1
     @classmethod
     def INPUT_TYPES(s):
@@ -90,7 +90,7 @@ class LoadRandomCheckpoint(BaseNode, CheckpointLoaderSimple):
         ckpt_name = ckpt_name if '.' in ckpt_name else ckpt_name + '.safetensors'
         return self.load_checkpoint(ckpt_name) + (ckpt_name,)
 
-class LoadRandomImage(BaseNode):
+class LoadRandomImage(RandomBase):
     def __init__(self):
         self.systematic_index = -1
     REQUIRED = { "folder": ("STRING", {} ), 
