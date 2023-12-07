@@ -26,7 +26,7 @@ The following apply to all random loaders:
 - The configuration file is required - see notes in `configuration.example.yaml`
 - If the seed is set to `0`, the loader will cycle systematically through the options instead of being random.
 - The list of options is loaded from the configuration file or directory at execution time, so can be changed without restart.
-- The workflow saved with the image will not contain name of the item randomly selected. Consider using the [Metadata](https://github.com/chrisgoringe/cg-metadata) custom nodes to capture and reuse the names.
+- The workflow saved with the image will not contain name of the item randomly selected. Consider using the [Metadata](https://github.com/chrisgoringe/cg-quicknodes) custom nodes to capture and reuse the names.
 
 The loaders available are:
 - `Load Random Lora` loads a random LoRA
