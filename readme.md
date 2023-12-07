@@ -1,5 +1,7 @@
 # CG's custom nodes: Randoms
 
+[Like my nodes? Buy me a coffee?](https://www.buymeacoffee.com/chrisgoringe)
+
 [Index of my custom nodes](https://github.com/chrisgoringe/cg-nodes-index)
 
 ## Randoms

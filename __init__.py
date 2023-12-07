@@ -20,3 +20,4 @@ NODE_CLASS_MAPPINGS = { "Random Int" : RandomInt,
 
 __all__ = ['NODE_CLASS_MAPPINGS', 'NODE_DISPLAY_NAME_MAPPINGS']
 
+version = "1.1"
