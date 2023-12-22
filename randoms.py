@@ -7,6 +7,25 @@ import numpy as np
 import torch
 import os
   
+class SystematicBase(BaseNode):
+    CATEGORY = "randoms"
+    LAST = None
+    def IS_CHANGED(self, **kwargs):
+        return float("NaN")
+    
+    def func(self, minimum, maximum, step):
+        if self.LAST is None: 
+            self.LAST = minimum
+        else:
+            self.LAST += step
+            if self.LAST > maximum: self.LAST = minimum
+            if self.LAST < minimum: self.LAST = maximum
+        return (self.LAST,)
+
+class SystematicInt(SystematicBase):
+    RETURN_TYPES = ("INT",)
+    REQUIRED = { "minimum": ("INT", {"default": 0}), "maximum": ("INT", {"default": 100}), "step": ("INT", {"default":1}) }
+
 
 class RandomBase(BaseNode):
     CATEGORY = "randoms"
