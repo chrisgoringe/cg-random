@@ -13,8 +13,8 @@ class SystematicBase(BaseNode):
     def IS_CHANGED(self, **kwargs):
         return float("NaN")
     
-    def func(self, minimum, maximum, step):
-        if self.LAST is None: 
+    def func(self, minimum, maximum, step, restart):
+        if self.LAST is None or restart=='yes': 
             self.LAST = minimum
         else:
             self.LAST += step
@@ -24,7 +24,10 @@ class SystematicBase(BaseNode):
 
 class SystematicInt(SystematicBase):
     RETURN_TYPES = ("INT",)
-    REQUIRED = { "minimum": ("INT", {"default": 0}), "maximum": ("INT", {"default": 100}), "step": ("INT", {"default":1}) }
+    REQUIRED = {"minimum": ("INT", {"default": 0}), 
+                "maximum": ("INT", {"default": 100}), 
+                "step": ("INT", {"default":1}),
+                "restart": (["no","yes"], ) }
 
 
 class RandomBase(BaseNode):
