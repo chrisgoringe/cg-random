@@ -5,6 +5,8 @@ from PIL import Image, ImageOps
 import numpy as np
 import torch
 import os
+from folder_paths import folder_names_and_paths, get_folder_paths
+from comfy.sd import load_checkpoint_guess_config
 
 
 class BaseNode:
@@ -140,16 +142,24 @@ class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
     systematic_index = -1
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "seed": SEED_INPUT() }, "optional": {"ckpt_name": ("STRING", {"default":""})} }
+        return {"required": { "seed": SEED_INPUT() } }
     RETURN_TYPES = ("MODEL", "CLIP", "VAE", "STRING",)
     RETURN_NAMES = ("model", "CLIP", "VAE", "ckpt_name",)
 
-    def func(self, seed, ckpt_name=""):
-        checkpoints = get_config_randoms('checkpoint_names', exception_if_missing_or_empty=True)
-        if ckpt_name=="":
-            ckpt_name, self.systematic_index = from_list(seed, checkpoints, self.systematic_index)
-        ckpt_name = ckpt_name if '.' in ckpt_name else ckpt_name + '.safetensors'
-        return self.load_checkpoint(ckpt_name) + (ckpt_name,)
+    def func(self, seed):
+        fnap = folder_names_and_paths["checkpoints"]
+        options = set()
+        for folder in fnap[0]:
+            random_folder = os.path.join(folder, "random")
+            if os.path.exists(random_folder):
+                for file in os.listdir(random_folder):
+                    if os.path.splitext(file)[1] in fnap[1]:
+                        options.add(os.path.join(random_folder,file))
+        with SeedContext(seed):
+            ckpt_path = random.choice(list(options))
+
+        out = load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, embedding_directory=get_folder_paths("embeddings"))
+        return out[:3] + (os.path.splitext(os.path.split(ckpt_path)[1])[0],)
 
 class LoadRandomImage(RandomBase):
     def __init__(self):
