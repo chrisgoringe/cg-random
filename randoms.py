@@ -138,15 +138,28 @@ class LoadRandomLora(RandomBase, LoraLoader):
         lora_name = lora_name if '.' in lora_name else lora_name + ".safetensors" 
         return self.load_lora(model, clip, lora_name, strength_model, strength_clip) + (lora_name,)
 
-class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
-    systematic_index = -1
+class KeepForRandomBase(RandomBase):
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "seed": SEED_INPUT() } }
+        return {"required": { "seed": SEED_INPUT(), "keep_for": ("INT", {"default": 1, "min":1, "max":100}) } }
+    
+    def __init__(self):
+        self.since_last_change = 0
+        self.result = None
+
+    def func(self, seed, keep_for, **kwargs):
+        self.since_last_change += 1
+        if self.since_last_change >= keep_for or self.result is None:
+            self.since_last_change = 0
+            with SeedContext(seed):
+                self.result = self.func_(**kwargs)
+        return self.result
+
+class LoadRandomCheckpoint(KeepForRandomBase, CheckpointLoaderSimple):
     RETURN_TYPES = ("MODEL", "CLIP", "VAE", "STRING",)
     RETURN_NAMES = ("model", "CLIP", "VAE", "ckpt_name",)
 
-    def func(self, seed):
+    def func_(self):
         fnap = folder_names_and_paths["checkpoints"]
         options = set()
         for folder in fnap[0]:
@@ -155,8 +168,8 @@ class LoadRandomCheckpoint(RandomBase, CheckpointLoaderSimple):
                 for file in os.listdir(random_folder):
                     if os.path.splitext(file)[1] in fnap[1]:
                         options.add(os.path.join(random_folder,file))
-        with SeedContext(seed):
-            ckpt_path = random.choice(list(options))
+
+        ckpt_path = random.choice(list(options))
 
         out = load_checkpoint_guess_config(ckpt_path, output_vae=True, output_clip=True, embedding_directory=get_folder_paths("embeddings"))
         return out[:3] + (os.path.splitext(os.path.split(ckpt_path)[1])[0],)
