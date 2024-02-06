@@ -35,7 +35,7 @@ All these nodes take a `minimum` and a `maximum`.
 
 The `... Float` nodes also have an optional `decimal_places` to round the value to. Note that the rounding is applied last, so it is possible to get a value outside the range (`minimum`, `maximum`) due to rounding (if `maximum=0.899` and `decimal_places=1`, the value `0.88` can be generated and rounded to `0.9`)
 
-## Checkpoint, LoRA and Image Loaders
+## Random Checkpoint, LoRA, and Image Loaders
 
 You can randomly, or systematically, load checkpoints, LoRAs, or images.
 
@@ -46,4 +46,5 @@ There is also a parameter `keep_for` which is the number of times a model will b
 If you set the option to `systematic` instead of `random` it will loop through the options (keeping each one for `keep_for` runs then moving on). 
 
 The random image loader also requires you to specify the `folder` to load from and the `extensions` to recognise as images.
+
 
