@@ -76,6 +76,10 @@ class LoadRandomCheckpoint(KeepForRandomBase, CheckpointLoaderSimple):
 class LoadRandomLora(KeepForRandomBase, LoraLoader):
     RETURN_TYPES = ("MODEL", "CLIP", "STRING",)
     RETURN_NAMES = ("model", "clip", "lora_name",)
+
+    def __init__(self):
+        self.loaded_lora = None
+        
     @classmethod
     def INPUT_TYPES(cls):
         it = LoraLoader.INPUT_TYPES()
