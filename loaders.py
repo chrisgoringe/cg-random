@@ -89,7 +89,12 @@ class LoadRandomLora(KeepForRandomBase, LoraLoader):
 
     def func_(self, **kwargs):
         lora_name = self.choose_from("loras")
+        lora_name = os.path.join(self.subfolder, os.path.split(lora_name)[1])
         return self.load_lora(lora_name=lora_name, **kwargs) + (os.path.splitext(os.path.split(lora_name)[1])[0],)
+    
+    @classmethod
+    def IS_CHANGED(s, **kwargs):
+        return float("NaN")
 
 class LoadRandomImage(KeepForRandomBase):
     @classmethod
