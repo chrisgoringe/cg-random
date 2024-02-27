@@ -17,7 +17,10 @@ class RandomLoaderException(Exception):
 class KeepForRandomBase(RandomBase):
     @classmethod
     def INPUT_TYPES(s):
-        return {"required": { "seed": SEED_INPUT(), "keep_for": ("INT", {"default": 1, "min":1, "max":100}), "mode": ( ["random", "systematic"], {}) } }
+        return {"required": { "seed": SEED_INPUT(), 
+                             "keep_for": ("INT", {"default": 1, "min":1, "max":100}), 
+                             "mode": ( ["random", "systematic"], {}), 
+                             "subfolder": ("STRING", {"default":"random"}) } }
     
     @classmethod
     def add_input_types(cls, it):
@@ -31,7 +34,8 @@ class KeepForRandomBase(RandomBase):
         self.result = None
         self.systematic = False
 
-    def func(self, seed, keep_for, mode, **kwargs):
+    def func(self, seed, keep_for, mode, subfolder, **kwargs):
+        self.subfolder = subfolder
         self.since_last_change += 1
         self.systematic = (mode=="systematic")
         if self.since_last_change >= keep_for or self.result is None:
@@ -44,7 +48,7 @@ class KeepForRandomBase(RandomBase):
         fnap = folder_names_and_paths[category]
         options = set()
         for folder in fnap[0]:
-            random_folder = os.path.join(folder, "random")
+            random_folder = os.path.join(folder, self.subfolder)
             if os.path.exists(random_folder):
                 for file in os.listdir(random_folder):
                     if os.path.splitext(file)[1] in fnap[1]:
@@ -80,7 +84,7 @@ class LoadRandomLora(KeepForRandomBase, LoraLoader):
 
     def func_(self, **kwargs):
         lora_name = self.choose_from("loras")
-        return self.load_lora(lora_name, **kwargs) + (lora_name,)
+        return self.load_lora(lora_name=lora_name, **kwargs) + (os.path.splitext(os.path.split(lora_name)[1])[0],)
 
 class LoadRandomImage(KeepForRandomBase):
     @classmethod
